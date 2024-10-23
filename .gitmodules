@@ -1,4 +1,3 @@
-# External libraries
 [submodule "Libraries/RNNoise"]
 	path = Libraries/RNNoise
-	url = https://github.com/xiph/rnnoise
+	url = https://github.com/xiph/rnnoise.git
