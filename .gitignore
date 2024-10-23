@@ -76,6 +76,3 @@ bun.lockb
 # Specific file extensions to ignore
 *.un~
 Session.vim
-
-# Submodules
-Libraries/*

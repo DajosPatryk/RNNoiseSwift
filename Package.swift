@@ -1,6 +1,3 @@
-// swift-tools-version: 5.9
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
 import PackageDescription
 
 let package = Package(
@@ -9,11 +6,6 @@ let package = Package(
         .iOS(.v15)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
-        //.library(
-		//	name: "RNNoise",
-		//	targets: ["RNNoise"]
-		//),
         .library(
             name: "CRNNoise",
             targets: ["CRNNoise"]
@@ -24,44 +16,42 @@ let package = Package(
         )
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "RNNoiseSwift",
             path: "Sources/RNNoiseSwift"
         ),
-        //.binaryTarget(
-        //    name: "RNNoise",
-        //    path: "RNNoise.xcframework"
-        //),
         .target(
 			name: "CRNNoise",
             path: "Libraries/RNNoise",
 			exclude: [
-				"AUTHORS",
-				"autogen.sh",
-				"configure.ac",
-				"COPYING",
-				"doc",
-				"examples",
-				"m4",
-				"Makefile.am",
-				"TRAINING-README",
-				"datasets.txt",
-				"rnnoise-uninstalled.pc.in",
-				"rnnoise.pc.in",
-				"README",
+                "AUTHORS",
+                "autogen.sh",
+                "configure.ac",
+                "COPYING",
+                "doc",
+                "examples",
+                "m4",
+                "Makefile.am",
+                "TRAINING-README",
+                "datasets.txt",
+                "rnnoise-uninstalled.pc.in",
+                "rnnoise.pc.in",
+                "README",
                 "scripts",
-				"training",
-				"update_version",
+                "training",
+                "update_version",
                 "torch",
-                "src/x86"
-			],
+                "src/x86",
+                "src/dump_features.c",
+                "src/dump_rnnoise_tables.c",
+                "src/write_weights.c",
+                "src/rnnoise_data_little.c"		// Include when using small model
+            ],
 			publicHeadersPath: "include",
 			cSettings: [
 				.headerSearchPath("."),
                 .headerSearchPath("./src"),
-                //.headerSearchPath("./x86"),
+                //.headerSearchPath("./x86"), Do not use for arm64
 
 				.define("RNNOISE_BUILD"),
 
