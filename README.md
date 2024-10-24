@@ -4,6 +4,11 @@ Swift wrapper for [RNNoise](https://github.com/xiph/rnnoise?tab=readme-ov-file) 
 Building manually is not required.
 Run `./autogen.sh` or upload your own model to `Libraries/RNNoise` before running. It is recommended to clone this repository and adding the package locally.
 
+## How To Use
+1. Create class `RNNoise`.
+2. Use function `process(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer?`
+> **Note:** Buffers must be RAW PCM format, Float32.
+
 ## How To Build Manually
 
 ### Building C Library For Apple Devices
