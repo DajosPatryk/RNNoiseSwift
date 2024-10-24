@@ -1,3 +1,5 @@
+// swift-tools-version:5.9
+
 import PackageDescription
 
 let package = Package(
@@ -12,12 +14,13 @@ let package = Package(
         ),
         .library(
             name: "RNNoiseSwift",
-            targets: ["RNNoiseSwift", "CRNNoise"]
+            targets: ["RNNoiseSwift"]
         )
     ],
     targets: [
         .target(
             name: "RNNoiseSwift",
+			dependencies: ["CRNNoise"],
             path: "Sources/RNNoiseSwift"
         ),
         .target(
