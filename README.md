@@ -18,7 +18,7 @@ Make sure `git submodule` is initialized.
 3. Run `./configure` with custom `CFLAGS`.
 - Command for arm64 Apple iOS: `./configure --host=arm-apple-darwin CC="$(xcrun --sdk iphoneos --find clang)" CFLAGS="-arch arm64 -isysroot $(xcrun --sdk iphoneos --show-sdk-path)"`
 - Command for arm64 Apple MacOS: `./configure CFLAGS="-arch arm64"`
-> **Note:** The C library will has to be built twice, once for iOS and once for MacOS, in order to make it compatible for XCFramework.
+> **Note:** The C library has to be built twice, once for iOS and once for MacOS, in order to make it compatible for XCFramework.
 4. Build C library with `make`
 > **Note:** Clean build files with `make clean`
 
