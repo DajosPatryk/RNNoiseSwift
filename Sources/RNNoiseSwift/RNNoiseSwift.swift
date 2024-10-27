@@ -7,6 +7,7 @@
 import Foundation
 import AVFoundation
 import CRNNoise
+import Accelerate
 
 public class RNNoise {
     public let denoiseState: OpaquePointer
@@ -22,83 +23,37 @@ public class RNNoise {
         rnnoise_destroy(denoiseState)
     }
     
-    /// Denoises buffer sample.
-    /// - Note: Buffer sample must be PCM format Float32.
+    /// Denoises `AVAudioPCMBuffer` buffer.
+    /// - Note: Buffer samples must be PCM format Float32.
     @inlinable
     public func process(_ buffer: AVAudioPCMBuffer) {
-        let totalSamples     = Int(buffer.frameLength)
-        let numFullFrames    = totalSamples / frameSize
-        let remainingSamples = totalSamples % frameSize
-    
-        /// Retrieve samples.
-        guard let samples = buffer.floatChannelData?[0] else {
+        let totalSamples  = Int(buffer.frameLength)
+        let numFullFrames = totalSamples / frameSize
+
+        guard let samples = buffer.floatChannelData?.pointee else {
             return
         }
-    
-        /// Process full frames in-place.
-        for i in 0..<numFullFrames {
+
+        /// Process each full frame.
+        (0..<numFullFrames).forEach { i in
             let frameStart = samples.advanced(by: i * frameSize)
-            rnnoise_process_frame(
-                denoiseState,
-                frameStart,
-                frameStart
-            )
-        }
-    
-        /// Process the remaining samples by padding with zeros.
-        if remainingSamples > 0 {
-            /// Create a temporary input frame initialized with zeros.
-            var inputFrame = [Float](repeating: 0, count: frameSize)
-    
-            /// Calculate the starting point for the remaining samples.
-            let remainingStartIndex = numFullFrames * frameSize
-            let inputFrameStart = samples.advanced(by: remainingStartIndex)
-    
-            /// Copy remaining samples into inputFrame.
-            let samplesToCopy = remainingSamples
-            let bytesToCopy = samplesToCopy * MemoryLayout<Float>.size
-            memcpy(&inputFrame, inputFrameStart, bytesToCopy)
-    
-            rnnoise_process_frame(denoiseState, &inputFrame, inputFrame)
-    
-            /// Copy processed samples back into the buffer.
-            memcpy(inputFrameStart, &inputFrame, bytesToCopy)
+            rnnoise_process_frame(denoiseState, frameStart, frameStart)
         }
     }
     
+    /// Denoises buffer pointer.
+    /// - Note: Buffer samples must be PCM format Float32.
     @inlinable
     public func processBuffer(_ bufferPointer: UnsafeMutableBufferPointer<Float>) {
-        let totalSamples = bufferPointer.count
+        let totalSamples  = bufferPointer.count
         let numFullFrames = totalSamples / frameSize
-        let remainingSamples = totalSamples % frameSize
-    
+
         guard let samplesPointer = bufferPointer.baseAddress else { return }
-    
-        for i in 0..<numFullFrames {
+
+        /// Process each full frame.
+        (0..<numFullFrames).forEach { i in
             let frameStart = samplesPointer.advanced(by: i * frameSize)
-            rnnoise_process_frame(
-                denoiseState,
-                frameStart,
-                frameStart
-            )
+            rnnoise_process_frame(denoiseState, frameStart, frameStart)
         }
-    
-        if remainingSamples > 0 {
-            var inputFrame = [Float](repeating: 0, count: frameSize)
-            let remainingStartIndex = numFullFrames * frameSize
-            let inputFrameStart = samplesPointer.advanced(by: remainingStartIndex)
-    
-            let bytesToCopy = remainingSamples * MemoryLayout<Float>.size
-            memcpy(&inputFrame, inputFrameStart, bytesToCopy)
-    
-            rnnoise_process_frame(denoiseState, &inputFrame, inputFrame)
-    
-            memcpy(inputFrameStart, &inputFrame, bytesToCopy)
-        }
-    }
-    
-    @inlinable
-    public func processFrame(_ frame: UnsafeMutablePointer<Float>) {
-        rnnoise_process_frame(denoiseState, frame, frame)
     }
 }
