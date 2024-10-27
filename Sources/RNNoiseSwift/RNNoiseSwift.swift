@@ -25,54 +25,80 @@ public class RNNoise {
     /// Denoises buffer sample.
     /// - Note: Buffer sample must be PCM format Float32.
     @inlinable
-    public func process(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
+    public func process(_ buffer: AVAudioPCMBuffer) {
         let totalSamples     = Int(buffer.frameLength)
         let numFullFrames    = totalSamples / frameSize
         let remainingSamples = totalSamples % frameSize
-
-        /// Retrieve input samples.
-        guard let inputSamples = buffer.floatChannelData?[0] else {
-            return nil
+    
+        /// Retrieve samples.
+        guard let samples = buffer.floatChannelData?[0] else {
+            return
         }
-
-        /// Create an output buffer.
-        guard let outputBuffer = AVAudioPCMBuffer(pcmFormat: buffer.format, frameCapacity: buffer.frameCapacity) else {
-            return nil
-        }
-        outputBuffer.frameLength = buffer.frameLength
-
-        /// Create output samples container.
-        guard let outputSamples = outputBuffer.floatChannelData?[0] else {
-            return nil
-        }
-
-        /// Process full frames.
+    
+        /// Process full frames in-place.
         for i in 0..<numFullFrames {
+            let frameStart = samples.advanced(by: i * frameSize)
             rnnoise_process_frame(
                 denoiseState,
-                outputSamples.advanced(by: i * frameSize),
-                inputSamples.advanced(by: i * frameSize)
+                frameStart,
+                frameStart
             )
         }
-
+    
         /// Process the remaining samples by padding with zeros.
         if remainingSamples > 0 {
-            var inputFrame      = [Float](repeating: 0, count: frameSize)
-            let inputFrameStart = inputSamples.advanced(by: numFullFrames * frameSize)
-            
+            /// Create a temporary input frame initialized with zeros.
+            var inputFrame = [Float](repeating: 0, count: frameSize)
+    
+            /// Calculate the starting point for the remaining samples.
+            let remainingStartIndex = numFullFrames * frameSize
+            let inputFrameStart = samples.advanced(by: remainingStartIndex)
+    
             /// Copy remaining samples into inputFrame.
+            let samplesToCopy = remainingSamples
+            let bytesToCopy = samplesToCopy * MemoryLayout<Float>.size
+            memcpy(&inputFrame, inputFrameStart, bytesToCopy)
+    
+            rnnoise_process_frame(denoiseState, &inputFrame, inputFrame)
+    
+            /// Copy processed samples back into the buffer.
+            memcpy(inputFrameStart, &inputFrame, bytesToCopy)
+        }
+    }
+    
+    @inlinable
+    public func processBuffer(_ bufferPointer: UnsafeMutableBufferPointer<Float>) {
+        let totalSamples = bufferPointer.count
+        let numFullFrames = totalSamples / frameSize
+        let remainingSamples = totalSamples % frameSize
+    
+        guard let samplesPointer = bufferPointer.baseAddress else { return }
+    
+        for i in 0..<numFullFrames {
+            let frameStart = samplesPointer.advanced(by: i * frameSize)
+            rnnoise_process_frame(
+                denoiseState,
+                frameStart,
+                frameStart
+            )
+        }
+    
+        if remainingSamples > 0 {
+            var inputFrame = [Float](repeating: 0, count: frameSize)
+            let remainingStartIndex = numFullFrames * frameSize
+            let inputFrameStart = samplesPointer.advanced(by: remainingStartIndex)
+    
             let bytesToCopy = remainingSamples * MemoryLayout<Float>.size
             memcpy(&inputFrame, inputFrameStart, bytesToCopy)
-            
-            var outputFrame = [Float](repeating: 0, count: frameSize)
-            rnnoise_process_frame(denoiseState, &outputFrame, inputFrame)
-            
-            let outputFrameStart = outputSamples.advanced(by: numFullFrames * frameSize)
-            
-            /// Copy processed samples back to output buffer.
-            memcpy(outputFrameStart, &outputFrame, bytesToCopy)
+    
+            rnnoise_process_frame(denoiseState, &inputFrame, inputFrame)
+    
+            memcpy(inputFrameStart, &inputFrame, bytesToCopy)
         }
-
-        return outputBuffer
+    }
+    
+    @inlinable
+    public func processFrame(_ frame: UnsafeMutablePointer<Float>) {
+        rnnoise_process_frame(denoiseState, frame, frame)
     }
 }
