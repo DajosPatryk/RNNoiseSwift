@@ -5,7 +5,7 @@ Building manually is not required.
 Run `./autogen.sh` or upload your own model to `Libraries/RNNoise` before running. It is recommended to clone this repository and adding the package locally.
 
 ## How To Use
-1. Create class `RNNoise`.
+1. Import `RNNoiseSwift`.
 2. Use function `process(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer?`
 > **Note:** Buffers must be RAW PCM format, Float32.
 
