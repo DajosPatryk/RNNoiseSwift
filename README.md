@@ -6,7 +6,9 @@ Run `./autogen.sh` or upload your own model to `Libraries/RNNoise` before runnin
 
 ## How To Use
 1. Import `RNNoiseSwift`.
-2. Use function `process(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer?`
+2. Use function `processBuffer(_ bufferPointer: UnsafeMutableBufferPointer<Float>)` on the buffer.
+3. The function will clean the buffer using `RNNoise`.
+
 > **Note:** Buffers must be RAW PCM format, Float32.
 
 ## How To Build Manually
