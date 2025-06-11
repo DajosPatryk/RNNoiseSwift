@@ -5,9 +5,11 @@ Building manually is not required.
 Run `./autogen.sh` or upload your own model to `Libraries/RNNoise` before running. It is recommended to clone this repository and adding the package locally.
 
 ## How To Use
-1. Import `RNNoiseSwift`.
-2. Use function `processBuffer(_ bufferPointer: UnsafeMutableBufferPointer<Float>)` on the buffer.
-3. The function will clean the buffer using `RNNoise`.
+1. Download `RNNoiseSwift`.
+2. Include `RNNoiseSwift` as a local package in your project.
+3. Run `cd ./Libraries/RNNoise` and `./autogen.sh` to download latest model.
+4. Use function `processBuffer(_ bufferPointer: UnsafeMutableBufferPointer<Float>)` on the buffer.
+5. The function will clean the buffer using `RNNoise`.
 
 > **Note:** Buffers must be RAW PCM format, Float32.
 
