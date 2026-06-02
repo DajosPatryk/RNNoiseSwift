@@ -20,7 +20,7 @@ let package = Package(
     targets: [
         .target(
             name: "RNNoiseSwift",
-			dependencies: ["CRNNoise"],
+            dependencies: ["CRNNoise"],
             path: "Sources/RNNoiseSwift"
         ),
         .target(
