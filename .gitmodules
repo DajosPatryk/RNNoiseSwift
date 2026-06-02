@@ -1,3 +1,0 @@
-[submodule "RNNoise/Libraries/RNNoise"]
-	path = RNNoise/Libraries/RNNoise
-	url = https://github.com/xiph/rnnoise.git

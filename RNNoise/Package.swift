@@ -35,7 +35,6 @@ let package = Package(
                 "examples",
                 "m4",
                 "Makefile.am",
-                "TRAINING-README",
                 "datasets.txt",
                 "rnnoise-uninstalled.pc.in",
                 "rnnoise.pc.in",
@@ -47,8 +46,7 @@ let package = Package(
                 "src/x86",
                 "src/dump_features.c",
                 "src/dump_rnnoise_tables.c",
-                "src/write_weights.c",
-                "src/rnnoise_data_little.c"		// Include when using small model
+                "src/write_weights.c"
             ],
 			publicHeadersPath: "include",
 			cSettings: [
